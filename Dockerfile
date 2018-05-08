@@ -83,7 +83,13 @@ RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/
 RUN wget https://github.com/sgerrand/alpine-pkg-php5-mongo/releases/download/1.6.16-r0/php5-mongo-1.6.16-r0.apk
 RUN apk add php5-mongo-1.6.16-r0.apk
 
+RUN wget --quiet --output-document=/etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+RUN wget https://github.com/sgerrand/alpine-pkg-php5-xdebug/releases/download/2.5.5-r0/php5-xdebug-2.5.5-r0.apk
+RUN apk add --no-cache php5-xdebug-2.5.5-r0.apk
+
 RUN  rm -rf /var/cache/apk/*
+
+COPY config/xdebug.ini /etc/php$PHP_VERSION/conf.d/xdebug.ini
 
 # AllowOverride ALL
 RUN sed -i '264s#AllowOverride None#AllowOverride All#' /etc/apache2/httpd.conf
@@ -101,5 +107,6 @@ WORKDIR  /var/www/html/
 
 EXPOSE 80
 EXPOSE 443
+EXPOSE 9000
 
 CMD /usr/sbin/apachectl  -D   FOREGROUND
