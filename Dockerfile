@@ -86,10 +86,21 @@ RUN apk add php5-mongo-1.6.16-r0.apk
 RUN wget --quiet --output-document=/etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
 RUN wget https://github.com/sgerrand/alpine-pkg-php5-xdebug/releases/download/2.5.5-r0/php5-xdebug-2.5.5-r0.apk
 RUN apk add --no-cache php5-xdebug-2.5.5-r0.apk
+RUN apk add libaio
 
 RUN  rm -rf /var/cache/apk/*
 
 COPY config/xdebug.ini /etc/php$PHP_VERSION/conf.d/xdebug.ini
+
+COPY instantclient_12_1.zip ./
+
+RUN unzip instantclient_12_1.zip && \
+    mv instantclient_12_1/ /usr/lib/ && \
+    rm instantclient_12_1.zip && \
+    ln /usr/lib/instantclient_12_1/libclntsh.so.12.1 /usr/lib/libclntsh.so && \
+    ln /usr/lib/instantclient_12_1/libocci.so.12.1 /usr/lib/libocci.so && \
+    ln /usr/lib/instantclient_12_1/libociei.so /usr/lib/libociei.so && \
+    ln /usr/lib/instantclient_12_1/libnnz12.so /usr/lib/libnnz12.so
 
 # AllowOverride ALL
 RUN sed -i '264s#AllowOverride None#AllowOverride All#' /etc/apache2/httpd.conf
@@ -104,6 +115,11 @@ RUN mkdir /var/www/html/
 
 VOLUME  /var/www/html/
 WORKDIR  /var/www/html/
+
+ENV ORACLE_BASE /usr/lib/instantclient_12_1
+ENV LD_LIBRARY_PATH /usr/lib/instantclient_12_1
+ENV TNS_ADMIN /usr/lib/instantclient_12_1
+ENV ORACLE_HOME /usr/lib/instantclient_12_1
 
 EXPOSE 80
 EXPOSE 443
