@@ -140,7 +140,7 @@ ENV TNS_ADMIN /usr/lib/instantclient_12_1
 ENV ORACLE_HOME /usr/lib/instantclient_12_1
 ENV LD_LIBRARY_PATH=/usr/lib/instantclient_12_1:/usr/glibc-compat/lib:$LD_LIBRARY_PATH
 
-RUN docker-php-ext-configure oci8 --with-oci8=instantclient,/opt/oracle/instantclient
+RUN docker-php-ext-configure oci8 --with-oci8=instantclient,/usr/lib/instantclient_12_1
 RUN docker-php-ext-install oci8
 
 RUN  rm -rf /var/cache/apk/*
