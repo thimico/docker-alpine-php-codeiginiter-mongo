@@ -71,6 +71,7 @@ apache2 \
 libxml2-dev \
 apache2-utils \
 ca-certificates \
+openssl \
 wget
 
 
@@ -88,12 +89,12 @@ RUN wget https://github.com/sgerrand/alpine-pkg-php5-xdebug/releases/download/2.
 RUN apk add --no-cache php5-xdebug-2.5.5-r0.apk
 RUN apk add libaio
 
-RUN apk --no-cache add ca-certificates wget
-RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
-RUN  wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.28-r0/glibc-2.28-r0.apk
-RUN apk add glibc-2.28-r0.apk
+# RUN apk --no-cache add ca-certificates wget
+# RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+# RUN  wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.28-r0/glibc-2.28-r0.apk
+# RUN apk add glibc-2.28-r0.apk
 
-
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk && apk add glibc-2.23-r3.apk
 
 
 
@@ -109,9 +110,15 @@ RUN unzip instantclient_12_1.zip && \
     ln /usr/lib/instantclient_12_1/libociei.so /usr/lib/libociei.so && \
     ln /usr/lib/instantclient_12_1/libnnz12.so /usr/lib/libnnz12.so
 
-RUN pecl install oci8-1.4.10
+# RUN cd /opt/oracle && unzip instantclient-sdk-linux.x64-12.1.0.2.0.zip && unzip instantclient-basic-linux.x64-12.1.0.2.0.zip \
+# 		&& mv instantclient_12_1 instantclient && cd instantclient \
+# 		&& ln -s libclntsh.so.12.1 libclntsh.so
 
-RUN  rm -rf /var/cache/apk/*
+
+# RUN sed -i "$ s|\-n||g" /usr/bin/pecl
+# RUN pecl install oci8-1.4.10
+
+
 
 # AllowOverride ALL
 RUN sed -i '264s#AllowOverride None#AllowOverride All#' /etc/apache2/httpd.conf
@@ -128,9 +135,15 @@ VOLUME  /var/www/html/
 WORKDIR  /var/www/html/
 
 ENV ORACLE_BASE /usr/lib/instantclient_12_1
-ENV LD_LIBRARY_PATH /usr/lib/instantclient_12_1
+# ENV LD_LIBRARY_PATH /usr/lib/instantclient_12_1
 ENV TNS_ADMIN /usr/lib/instantclient_12_1
 ENV ORACLE_HOME /usr/lib/instantclient_12_1
+ENV LD_LIBRARY_PATH=/usr/lib/instantclient_12_1:/usr/glibc-compat/lib:$LD_LIBRARY_PATH
+
+RUN docker-php-ext-configure oci8 --with-oci8=instantclient,/opt/oracle/instantclient
+RUN docker-php-ext-install oci8
+
+RUN  rm -rf /var/cache/apk/*
 
 EXPOSE 80
 EXPOSE 443
