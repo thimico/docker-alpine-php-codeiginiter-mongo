@@ -88,7 +88,14 @@ RUN wget https://github.com/sgerrand/alpine-pkg-php5-xdebug/releases/download/2.
 RUN apk add --no-cache php5-xdebug-2.5.5-r0.apk
 RUN apk add libaio
 
-RUN  rm -rf /var/cache/apk/*
+RUN apk --no-cache add ca-certificates wget
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+RUN  wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.28-r0/glibc-2.28-r0.apk
+RUN apk add glibc-2.28-r0.apk
+
+
+
+
 
 COPY config/xdebug.ini /etc/php$PHP_VERSION/conf.d/xdebug.ini
 
@@ -101,6 +108,10 @@ RUN unzip instantclient_12_1.zip && \
     ln /usr/lib/instantclient_12_1/libocci.so.12.1 /usr/lib/libocci.so && \
     ln /usr/lib/instantclient_12_1/libociei.so /usr/lib/libociei.so && \
     ln /usr/lib/instantclient_12_1/libnnz12.so /usr/lib/libnnz12.so
+
+RUN pecl install oci8-1.4.10
+
+RUN  rm -rf /var/cache/apk/*
 
 # AllowOverride ALL
 RUN sed -i '264s#AllowOverride None#AllowOverride All#' /etc/apache2/httpd.conf
