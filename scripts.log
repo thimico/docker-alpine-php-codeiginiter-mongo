@@ -1,0 +1,3 @@
+2018-09-21 16:50:59 - Scripts: /usr/share/cid/scripts/logon_commonUser.bash - Status: 0 - Output:
+	checking the NETLOGON for domain[MEDCHEQUE] dc connection to "FSSAPWSAD01.medcheque.local" succeeded
+------------------------------------------------
