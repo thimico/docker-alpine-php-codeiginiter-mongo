@@ -38,6 +38,10 @@ RUN echo "extension=oci8.so" > /usr/local/etc/php/conf.d/php-oci8.ini
 
 RUN apt-get install nano -y
 
+RUN pecl install xdebug-2.6.0
+RUN docker-php-ext-enable xdebug
+RUN echo "xdebug.remote_enable=1" >> /usr/local/etc/php/php.ini
+
 RUN echo "<?php echo phpinfo(); ?>" > /var/www/html/phpinfo.php
 
 EXPOSE 80
